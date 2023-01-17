@@ -14,23 +14,9 @@ ipfs_hashes = {
 def check_url(url, entry):
     entry["mirror"] = []
 #    if not skip_laundromat:
-    if url in ipfs_hashes:
-        uris = ["ipfs:" + ipfs_hashes[url]]
-#        try:
-#            soup = BeautifulSoup(
-#                    urlopen(
-#                    "http://lodlaundromat.org/sparql/?"
-#                    + urlencode({
-#                        "query": "PREFIX llo: <http://lodlaundromat.org/ontology/> SELECT DISTINCT ?dataset WHERE {?dataset llo:url <" +
-#                        url + ">}" })), features="xml")
-#            uris = soup.find_all("uri")
-#        except:
-#            traceback.print_exc()
-#            uris = []
-    else:
-        uris = []
-    if len(uris) > 0:
-        print("%s => %s" % (url, uris[0]))
+    uris = [f"ipfs:{ipfs_hashes[url]}"] if url in ipfs_hashes else []
+    if uris:
+        print(f"{url} => {uris[0]}")
         entry.update({
             "mirror": uris,
             "status": "OK"
@@ -41,7 +27,7 @@ def check_url(url, entry):
                     allow_redirects=True, 
                     timeout=30)
             if r.status_code == 200:
-                print("%s OK" % url)
+                print(f"{url} OK")
                 entry.update({
                     "status": "OK",
                     "media_type": str(r.headers["content-type"])
@@ -53,10 +39,8 @@ def check_url(url, entry):
                     })
         except Exception as e:
             #traceback.print_exc(file=sys.stdout)
-            print("%s FAIL: (%s)" % (url, str(e)))
-            entry.update({
-                "status": "FAIL (%s)" % str(e)
-                })
+            print(f"{url} FAIL: ({str(e)})")
+            entry.update({"status": f"FAIL ({str(e)})"})
 
 
 def check_example(url, entry):
@@ -66,7 +50,7 @@ def check_example(url, entry):
                 timeout=30,
                 headers={"Accept":"application/rdf+xml,text/turtle,application/n-triples,application/ld+json,*/*q=0.9"})
         if r.status_code == 200:
-            print("%s OK" % url)
+            print(f"{url} OK")
             entry.update({
                 "status": "OK",
                 "media_type": str(r.headers["content-type"])
@@ -78,10 +62,8 @@ def check_example(url, entry):
                 })
     except Exception as e:
         #traceback.print_exc(file=sys.stdout)
-        print("%s FAIL: (%s)" % (url, str(e)))
-        entry.update({
-            "status": "FAIL (%s)" % str(e)
-            })
+        print(f"{url} FAIL: ({str(e)})")
+        entry.update({"status": f"FAIL ({str(e)})"})
 
 
 
@@ -91,7 +73,7 @@ def check_sparql(url, entry):
                 allow_redirects=True, 
                 timeout=30)
         if r.status_code == 200:
-            print("%s OK" % url)
+            print(f"{url} OK")
             entry.update({
                 "status": "OK"
                 })
@@ -102,10 +84,8 @@ def check_sparql(url, entry):
                 })
     except Exception as e:
         #traceback.print_exc(file=sys.stdout)
-        print("%s FAIL: (%s)" % (url, str(e)))
-        entry.update({
-            "status": "FAIL (%s)" % str(e)
-            })
+        print(f"{url} FAIL: ({str(e)})")
+        entry.update({"status": f"FAIL ({str(e)})"})
 
 
 if __name__ == "__main__":
@@ -169,7 +149,7 @@ if __name__ == "__main__":
     links = {"full_download":0,"other_download":0,"example":0,"sparql":0}
     links_available = {"full_download":0,"other_download":0,"example":0,"sparql":0}
 
-    for (_, res) in data.items():
+    for res in data.values():
         resources += 1
         success = False
         for (clazz,link_list) in res.items():

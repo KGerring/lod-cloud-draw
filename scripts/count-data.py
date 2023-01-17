@@ -7,12 +7,8 @@ data = json.load(open("lod-data.json"))
 def toint(y):
     if isinstance(y, int):
         return y
-    else:
-        x = y.replace(",","").replace(".","")
-        if re.match("^[0-9]+$", x):
-            return int(x)
-        else:
-            return 0
+    x = y.replace(",","").replace(".","")
+    return int(x) if re.match("^[0-9]+$", x) else 0
 
 print("Triples")
 print(sum(toint(x["triples"]) for x in data.values()))
